@@ -15,6 +15,7 @@ import com.example.administrator.baseproject.R;
 import com.example.administrator.baseproject.ui.SystemBarTintManager;
 
 import butterknife.ButterKnife;
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by LiBing
@@ -60,6 +61,19 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseView
             setContentView  (getContentViewLayoutID());
             initView(savedInstanceState);
         }
+        EventBus.getDefault().register(this);
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
     }
 
     /** 子类可以重写决定是否使用透明状态栏 */

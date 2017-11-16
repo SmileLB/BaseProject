@@ -8,10 +8,11 @@ import android.app.Application;
  * describe:
  */
 
-public class AppApplication extends Application{
+public class AppApplication extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
     }
+
 }
