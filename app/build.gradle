@@ -21,9 +21,10 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(':uilibrary')
+    compile project(':rxlibrary')
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile project(':uilibrary')
     compile 'io.reactivex.rxjava2:rxjava:2.1.0'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
@@ -32,7 +33,6 @@ dependencies {
     compile 'com.android.support:design:26.0.0-alpha1'
     compile 'com.jaeger.statusbarutil:library:1.4.0'
     compile 'com.jakewharton:butterknife:8.6.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
     compile 'de.greenrobot:eventbus:3.0.0-beta1'
-    compile project(':rxlibrary')
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
 }

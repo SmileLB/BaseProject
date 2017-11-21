@@ -1,7 +1,7 @@
 package com.example.rxlibrary.common;
 
 
-import com.example.rxlibrary.baseBaen.Result;
+import com.example.rxlibrary.baseBaen.BaseRespMsg;
 import com.example.rxlibrary.exception.ApiException;
 
 import io.reactivex.Observable;
@@ -16,24 +16,24 @@ import io.reactivex.schedulers.Schedulers;
 
 public class RxHttpReponseCompat {
 
-    public static <T> ObservableTransformer<Result<T>,T> compatResult(){
+    public static <T> ObservableTransformer<BaseRespMsg<T>,T> compatResult(){
 
-        return  new ObservableTransformer<Result<T>, T>() {
+        return  new ObservableTransformer<BaseRespMsg<T>, T>() {
             @Override
-            public ObservableSource<T> apply(Observable<Result<T>> ResultObservable) {
+            public ObservableSource<T> apply(Observable<BaseRespMsg<T>> BaseRespMsgObservable) {
 
-                return ResultObservable.flatMap(new Function<Result<T>, ObservableSource<T>>() {
+                return BaseRespMsgObservable.flatMap(new Function<BaseRespMsg<T>, ObservableSource<T>>() {
                     @Override
-                    public ObservableSource<T> apply(@NonNull final Result<T> tResult) throws Exception {
+                    public ObservableSource<T> apply(@NonNull final BaseRespMsg<T> tBaseRespMsg) throws Exception {
 
-                        if(tResult.getCode()==1){
+                        if("success".equals(tBaseRespMsg.getReason())){
 
                             return Observable.create(new ObservableOnSubscribe<T>() {
                                 @Override
                                 public void subscribe(ObservableEmitter<T> subscriber) throws Exception {
 
                                     try {
-                                        subscriber.onNext(tResult.getResult());
+                                        subscriber.onNext(tBaseRespMsg.getData());
                                         subscriber.onComplete();
 
                                     } catch (Exception e){
@@ -43,7 +43,7 @@ public class RxHttpReponseCompat {
                             });
 
                         } else {
-                            return  Observable.error(new ApiException(tResult.getCode(),tResult.getMsg()));
+                            return  Observable.error(new ApiException(tBaseRespMsg.getError_code(),tBaseRespMsg.getReason()));
                         }
 
                     }

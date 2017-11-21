@@ -1,13 +1,11 @@
 package com.example.administrator.baseproject.http;
 
-import java.util.Map;
+import com.example.rxlibrary.baseBaen.BaseRespMsg;
+import com.example.rxlibrary.baseBaen.Msg;
 
 import io.reactivex.Observable;
-import retrofit2.Response;
-import retrofit2.http.FieldMap;
 import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by LiBing
@@ -17,9 +15,6 @@ import retrofit2.http.Path;
 
 public interface HttpService {
 
-    @POST("")
-    Observable<Response<String>> checkHardWare(@FieldMap Map<String, String> map);
-
-    @GET("app/{id}")
-    Observable<Response<String>> getAppDetail(@Path("id") int id);
+    @GET("telecode/to_telecodes.php")
+    Observable<BaseRespMsg<Msg>> test(@Query("chars") String chars,@Query("key") String key);
 }

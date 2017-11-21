@@ -3,14 +3,23 @@ package com.example.administrator.baseproject.http;
 import android.app.Application;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -28,9 +37,9 @@ public class RetrofitHelper {
     //设置缓存目录
     private static File cacheFile;
     private static long maxSize = 8 * 1024 * 1024; //缓存文件大小
-    private final static long TIMEOUT = 500;  //超时时间
+    private final static long TIMEOUT = 10000;  //超时时间
     private Cache mCache;
-    private final static String baseUrl = "";
+    private final static String baseUrl = "http://v.juhe.cn/";
     private OkHttpClient mClient;
     private Retrofit mRetrofit;
     private final HttpService mHttpService;
@@ -69,10 +78,10 @@ public class RetrofitHelper {
     private OkHttpClient getOkHttpClient() {
         if (mClient == null) {
             mClient = new OkHttpClient.Builder()
-                    .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
-                    .readTimeout(TIMEOUT, TimeUnit.SECONDS)
-                    .writeTimeout(TIMEOUT, TimeUnit.SECONDS)
-                    //.addInterceptor(headInterceptor)
+                    .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                    .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                    .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+//                    .addInterceptor(headInterceptor)
                     .addInterceptor(loggingInterceptor)
                     .cache(getCache())      //设置缓存
                     .build();
@@ -83,9 +92,22 @@ public class RetrofitHelper {
     //获取Retrofit对象
     public Retrofit getRetrofit() {
         if (mRetrofit == null) {
+            Gson gson = new GsonBuilder()
+                    .setDateFormat("yyyy-MM-dd hh:mm:ss")
+                    .registerTypeAdapter(Double.class, new JsonSerializer<Double>() {
+                        @Override
+                        public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
+                            if (src == src.longValue())
+                                return new JsonPrimitive(src.longValue());
+
+                            return new JsonPrimitive(src);
+                        }
+                    })
+                    .create();
+
             mRetrofit = new Retrofit.Builder()
                     .baseUrl(baseUrl)
-                    .addConverterFactory(GsonConverterFactory.create())        //添加Gson支持
+                    .addConverterFactory(GsonConverterFactory.create(gson))        //添加Gson支持
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())  //添加RxJava支持
                     .client(getOkHttpClient())                                 //关联okhttp
                     .build();
@@ -101,10 +123,16 @@ public class RetrofitHelper {
     //日志拦截器
     private final static Interceptor headInterceptor = new Interceptor() {
         @Override
-        public okhttp3.Response intercept(Chain chain) throws IOException {
+        public Response intercept(Chain chain) throws IOException {
             Request mRequest = chain.request();
             //在这里你可以做一些想做的事,比如token失效时,重新获取token
             //或者添加header等等
+            Request.Builder builder1 = mRequest.newBuilder();
+            builder1.addHeader("apikey", "")
+                    .addHeader("apikey", "")
+                    .addHeader("apikey", "")
+                    .build();
+
             return chain.proceed(mRequest);
         }
     };
