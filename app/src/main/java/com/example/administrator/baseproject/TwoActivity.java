@@ -18,6 +18,5 @@ public class TwoActivity extends AppCompatActivity {
                 EventBus.getDefault().post("123");
             }
         });
-
     }
 }

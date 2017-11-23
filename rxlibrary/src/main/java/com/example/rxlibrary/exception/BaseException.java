@@ -41,6 +41,9 @@ public class BaseException extends Exception {
 
     public static final int ERROR_HTTP_405 = 405;
 
+    public static final int ERROR_HTTP_221101 = 221101;
+
+
     public static final int ERROR_HTTP_500 = 500;
 
     private int code;

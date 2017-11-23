@@ -45,10 +45,11 @@ public class RetrofitHelper {
     private final HttpService mHttpService;
     private static String TAG;
     private static RetrofitHelper retrofitHelper;
+    private static Gson gson;
 
-    private RetrofitHelper() {
+    private RetrofitHelper(Application application) {
         TAG = this.getClass().getSimpleName();
-        mHttpService = getRetrofit().create(HttpService.class);
+        mHttpService = getRetrofit(application).create(HttpService.class);
     }
 
     //单例 保证对象唯一
@@ -60,7 +61,19 @@ public class RetrofitHelper {
                     if (!cacheFile.exists()) {
                         cacheFile.mkdir();
                     }
-                    retrofitHelper = new RetrofitHelper();
+                    gson = new GsonBuilder()
+                            .setDateFormat("yyyy-MM-dd hh:mm:ss")
+                            .registerTypeAdapter(Double.class, new JsonSerializer<Double>() {
+                                @Override
+                                public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
+                                    if (src == src.longValue())
+                                        return new JsonPrimitive(src.longValue());
+
+                                    return new JsonPrimitive(src);
+                                }
+                            })
+                            .create();
+                    retrofitHelper = new RetrofitHelper(application);
                 }
             }
         }
@@ -75,13 +88,14 @@ public class RetrofitHelper {
     }
 
     //获取OkHttpClient
-    private OkHttpClient getOkHttpClient() {
+    private OkHttpClient getOkHttpClient(Application application) {
         if (mClient == null) {
             mClient = new OkHttpClient.Builder()
                     .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                     .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                     .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
 //                    .addInterceptor(headInterceptor)
+                    .addInterceptor(new ComParamsInterceptor(application,gson))
                     .addInterceptor(loggingInterceptor)
                     .cache(getCache())      //设置缓存
                     .build();
@@ -90,26 +104,13 @@ public class RetrofitHelper {
     }
 
     //获取Retrofit对象
-    public Retrofit getRetrofit() {
+    public Retrofit getRetrofit(Application application) {
         if (mRetrofit == null) {
-            Gson gson = new GsonBuilder()
-                    .setDateFormat("yyyy-MM-dd hh:mm:ss")
-                    .registerTypeAdapter(Double.class, new JsonSerializer<Double>() {
-                        @Override
-                        public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
-                            if (src == src.longValue())
-                                return new JsonPrimitive(src.longValue());
-
-                            return new JsonPrimitive(src);
-                        }
-                    })
-                    .create();
-
             mRetrofit = new Retrofit.Builder()
                     .baseUrl(baseUrl)
                     .addConverterFactory(GsonConverterFactory.create(gson))        //添加Gson支持
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())  //添加RxJava支持
-                    .client(getOkHttpClient())                                 //关联okhttp
+                    .client(getOkHttpClient(application))                                 //关联okhttp
                     .build();
         }
         return mRetrofit;

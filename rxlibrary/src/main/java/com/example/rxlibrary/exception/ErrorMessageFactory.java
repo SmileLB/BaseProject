@@ -44,6 +44,9 @@ public class ErrorMessageFactory {
             case ApiException.ERROR_TOKEN:
                 errorMsg = context.getResources().getString(R.string.error_token);
                 break;
+            case ApiException.ERROR_HTTP_221101:
+                errorMsg = context.getResources().getString(R.string.error_token2);
+                break;
             default:
                 errorMsg = context.getResources().getString(R.string.error_unkown);
                 break;
