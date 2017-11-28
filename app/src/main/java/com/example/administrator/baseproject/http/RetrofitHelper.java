@@ -94,8 +94,8 @@ public class RetrofitHelper {
                     .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                     .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                     .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-//                    .addInterceptor(headInterceptor)
-                    .addInterceptor(new ComParamsInterceptor(application,gson))
+                    .addInterceptor(headInterceptor)
+                    .addInterceptor(new ComParamsJsonInterceptor(application,gson))
                     .addInterceptor(loggingInterceptor)
                     .cache(getCache())      //设置缓存
                     .build();
@@ -128,13 +128,13 @@ public class RetrofitHelper {
             Request mRequest = chain.request();
             //在这里你可以做一些想做的事,比如token失效时,重新获取token
             //或者添加header等等
-            Request.Builder builder1 = mRequest.newBuilder();
-            builder1.addHeader("apikey", "")
-                    .addHeader("apikey", "")
-                    .addHeader("apikey", "")
+            Request authorised=mRequest.newBuilder()
+                    .header("","")
+                    .header("","")
+                    .header("","")
                     .build();
 
-            return chain.proceed(mRequest);
+            return chain.proceed(authorised);
         }
     };
 
