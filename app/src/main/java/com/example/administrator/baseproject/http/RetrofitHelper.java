@@ -94,6 +94,8 @@ public class RetrofitHelper {
                     .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                     .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                     .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                    .addInterceptor(new RecieveCookieInterceptor(application))
+                    .addInterceptor(new AddCookieInterceptor(application))
                     .addInterceptor(headInterceptor)
                     .addInterceptor(new ComParamsJsonInterceptor(application,gson))
                     .addInterceptor(loggingInterceptor)
@@ -132,6 +134,7 @@ public class RetrofitHelper {
                     .header("","")
                     .header("","")
                     .header("","")
+                    // .header("Cookie", "add cookies here")
                     .build();
 
             return chain.proceed(authorised);
