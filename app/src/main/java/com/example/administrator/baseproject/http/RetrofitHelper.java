@@ -16,6 +16,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
+import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -148,4 +149,22 @@ public class RetrofitHelper {
             Log.e(TAG + " : log", message);
         }
     }).setLevel(HttpLoggingInterceptor.Level.BODY);
+
+    private Interceptor commonParamsInterceptor() {
+        Interceptor commonParams = new Interceptor() {
+            @Override
+            public okhttp3.Response intercept(Chain chain) throws IOException {
+                Request originRequest = chain.request();
+                Request request;
+//                String method = originRequest.method();
+//                Headers headers = originRequest.headers();
+                HttpUrl httpUrl = originRequest.url().newBuilder().addQueryParameter("paltform", "android").addQueryParameter("version", "1.0.0").build();
+                request = originRequest.newBuilder().url(httpUrl).build();
+                return chain.proceed(request);
+            }
+        };
+
+        return commonParams;
+    }
+
 }
